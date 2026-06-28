@@ -691,11 +691,10 @@ body {
        and adding a hidden YouTube iframe instead.
 ══════════════════════════════════════ -->
 <!-- CORRECT (replace with this) -->
-<iframe id="bgMusic"
-  src="https://www.youtube.com/embed/NH8uI4EJ0bo?autoplay=1&loop=1&playlist=NH8uI4EJ0bo"
-  style="display:none; width:0; height:0; border:none;"
-  allow="autoplay">
-</iframe>
+<!-- WRONG (what you have now) -->
+<audio id="bgMusic" loop>
+  <source src="lofi.mp3" type="audio/mpeg">
+</audio>
 <button id="musicBtn" title="Toggle music">🎵</button>
 
 <!-- ══════════════════════════════════════
@@ -1312,26 +1311,31 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ─── MUSIC (YouTube iframe version) ─── */
+const music = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 let musicStarted = false;
 
 function startMusic() {
-  // YouTube iframe plays automatically via ?autoplay=1
-  // Nothing extra needed — just mark as started
   if (!musicStarted) {
+    music.volume = 0.45;
+    music.play().catch(() => {});
     musicStarted = true;
     musicBtn.textContent = '🔊';
   }
 }
 
 musicBtn.addEventListener('click', function() {
-  // YouTube iframes can't be paused via JS without the YouTube API
-  // So the button just shows state info
-  startMusic();
-  musicBtn.textContent = musicBtn.textContent === '🔇' ? '🔊' : '🔇';
+  if (!musicStarted) {
+    startMusic();
+  } else if (music.paused) {
+    music.play();
+    musicBtn.textContent = '🔊';
+  } else {
+    music.pause();
+    musicBtn.textContent = '🔇';
+  }
 });
 
-// Auto-start on any first interaction
 document.addEventListener('click', startMusic, { once: true });
 document.addEventListener('touchstart', startMusic, { once: true });
 
